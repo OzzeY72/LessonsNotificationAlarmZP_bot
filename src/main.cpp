@@ -223,7 +223,7 @@ void writeGroup(sqlite3 *db,int gid,long long id)
 	}
 }
 
-string Next(sqlite3 *db,int current_day,int current_para,int ch,long long id,string poj)
+string Next(sqlite3 *db,int current_day,int current_para,int ch,long long id,string poj,bool isalarm)
 {
     	int gid = getGid(db,id);
 	string astr = "";
@@ -237,6 +237,8 @@ string Next(sqlite3 *db,int current_day,int current_para,int ch,long long id,str
 	lesson->setDayName(current_day);
 	lesson->setParaNumber(current_para);
 	string result="";
+	if(!isalarm)
+	{
 	while(prepareOut(db,lesson,"=",astr) == -1)
 	{
 		bool flag = false;
@@ -250,12 +252,13 @@ string Next(sqlite3 *db,int current_day,int current_para,int ch,long long id,str
 			lesson->setParaNumber(1);
 		if(lesson->getDayName()>=7) return "";
 	}
+	}else prepareOut(db,lesson,"=",astr);
 	if(lesson->getCh() == ch || lesson->getCh() == 3) result += outLesson(db,lesson);//bot.getApi().sendMessage(message->chat->id,outLesson(db,lesson),0,0,make_shared<GenericReply>(),"MarkdownV2");}
 	if(lesson->getGroup() != 3)
 			{
 				string tastr = " and (calenday = " + to_string(ch) + " or " + "calenday = 3)" + " and gid = " + to_string((2-lesson->getGroup())+1);
 				tastr += " " + poj;
-				if(prepareOut(db,lesson,"=",tastr) != -1){ if((lesson->getCh() == ch || lesson->getCh() == 3) && (lesson->getGroup() == gid || gid == 3 || lesson->getGroup() == 3))  result = result + "qqq" + outLesson(db,lesson);}
+				if(prepareOut(db,lesson,"=",tastr) != -1){ if((lesson->getCh() == ch || lesson->getCh() == 3) && (lesson->getGroup() == gid || gid == 3 || lesson->getGroup() == 3))  result = result + "$" + outLesson(db,lesson);}
 			}
 	return result;
 	
@@ -266,9 +269,9 @@ void alarmA(vector<long long> ids,Bot *bot,sqlite3 *db,int current_day,int curre
 	for(auto it = ids.begin();it != ids.end();it++)
 	{
 		//string str = Next(db,current_day,current_para,ch,*it,"");
-		string str = Next(db,current_day,current_para+1,ch,*it," and day = " + to_string(current_day) + " ");
+		string str = Next(db,current_day,current_para+1,ch,*it," and day = " + to_string(current_day) + " ",true);
 		vector<string> strs;
-		boost::split(strs,str,boost::is_any_of("qqq"));
+		boost::split(strs,str,boost::is_any_of("$"));
 		for(auto ij = strs.begin();ij != strs.end();ij++)
 			{
     				try{bot->getApi().sendMessage(*it,*ij,0,0,make_shared<GenericReply>(),"MarkdownV2");}
@@ -388,9 +391,9 @@ int main() {
     bot.getEvents().onCommand("next", [&db,&bot,&current_day,&current_para,&ch](Message::Ptr message)
     {
 	vector<string> strs;
-	string next_string = Next(db,current_day,current_para+1,ch,message->chat->id,"");
-	if(next_string.find("@") != std::string::npos) 
-		boost::split(strs,next_string,boost::is_any_of("qqq"));
+	string next_string = Next(db,current_day,current_para+1,ch,message->chat->id,"",false);
+	if(next_string.find("$") != std::string::npos) 
+		boost::split(strs,next_string,boost::is_any_of("$"));
 	else strs.push_back(next_string);
 		for(auto it = strs.begin();it != strs.end();++it)
 		{
@@ -400,16 +403,17 @@ int main() {
          		}
 		}
     });
+    //NOW
     bot.getEvents().onCommand("now", [&db,&bot,&current_day,&current_para,&ch](Message::Ptr message)
     {
 	vector<string> strs;
-	string next_string = Next(db,current_day,current_para,ch,message->chat->id,"");
-	if(next_string.find("@") != std::string::npos) 
-		boost::split(strs,next_string,boost::is_any_of("@"));
+	string next_string = Next(db,current_day,current_para,ch,message->chat->id,"",true);
+	if(next_string.find("$") != std::string::npos) 
+		boost::split(strs,next_string,boost::is_any_of("$"));
 	else strs.push_back(next_string);
 		for(auto it = strs.begin();it != strs.end();++it)
 		{
-    			try{bot.getApi().sendMessage(message->chat->id,*it,0,0,make_shared<GenericReply>(),"MarkdownV2");}
+    			try{if(*it != "") bot.getApi().sendMessage(message->chat->id,*it,0,0,make_shared<GenericReply>(),"MarkdownV2");}
 			catch (TgException& e) {
 	                	 printf("error: %s\n", e.what());
          		}
@@ -511,7 +515,7 @@ int main() {
 	    int hour = ltm->tm_hour+2;
 	    int min  = ltm->tm_min;
 	    if(hour == 0 and min == 0) cout << "Day: " << current_day << "\t Para: " << current_para << "\t Chsl: " << ch << endl;
-	    cout << hour << ":" << min << ":" << ltm->tm_sec << endl;
+	    //cout << hour << ":" << min << ":" << ltm->tm_sec << endl;
 	    int st = hour*60+min;
 	    if(st == 470 && !flg)
 	    {
