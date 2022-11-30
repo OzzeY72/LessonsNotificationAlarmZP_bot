@@ -75,12 +75,12 @@ void getCurpara(int *cp)
 	int min  = ltm->tm_min;
 	int st = hour*60+min;
 	if(st < 480) *cp = 0;
-	else if(st >= 490 && st < 545) *cp = 1;
-	else if(st >= 545 && st < 635) *cp = 2;
-	else if(st >= 645 && st < 735) *cp = 3;
-	else if(st >= 735 && st < 845) *cp = 4;
-	else if(st >= 845 && st < 940) *cp = 5;
-	else if(st >= 940 && st < 1440) *cp = 6;
+	else if(st >= 480 && st < 575) *cp = 1;
+	else if(st >= 575 && st < 685) *cp = 2;
+	else if(st >= 685 && st < 775) *cp = 3;
+	else if(st >= 775 && st < 870) *cp = 4;
+	else if(st >= 870 && st < 950) *cp = 5;
+	else if(st >= 950 && st < 1440) *cp = 6;
 }
 
 
@@ -255,7 +255,7 @@ string Next(sqlite3 *db,int current_day,int current_para,int ch,long long id,str
 			{
 				string tastr = " and (calenday = " + to_string(ch) + " or " + "calenday = 3)" + " and gid = " + to_string((2-lesson->getGroup())+1);
 				tastr += " " + poj;
-				if(prepareOut(db,lesson,"=",tastr) != -1){ if((lesson->getCh() == ch || lesson->getCh() == 3) && (lesson->getGroup() == gid || gid == 3 || lesson->getGroup() == 3))  result = result + "@" + outLesson(db,lesson);}
+				if(prepareOut(db,lesson,"=",tastr) != -1){ if((lesson->getCh() == ch || lesson->getCh() == 3) && (lesson->getGroup() == gid || gid == 3 || lesson->getGroup() == 3))  result = result + "qqq" + outLesson(db,lesson);}
 			}
 	return result;
 	
@@ -266,9 +266,9 @@ void alarmA(vector<long long> ids,Bot *bot,sqlite3 *db,int current_day,int curre
 	for(auto it = ids.begin();it != ids.end();it++)
 	{
 		//string str = Next(db,current_day,current_para,ch,*it,"");
-		string str = Next(db,current_day,current_para,ch,*it," and day = " + to_string(current_day) + " ");
+		string str = Next(db,current_day,current_para+1,ch,*it," and day = " + to_string(current_day) + " ");
 		vector<string> strs;
-		boost::split(strs,str,boost::is_any_of("@"));
+		boost::split(strs,str,boost::is_any_of("qqq"));
 		for(auto ij = strs.begin();ij != strs.end();ij++)
 			{
     				try{bot->getApi().sendMessage(*it,*ij,0,0,make_shared<GenericReply>(),"MarkdownV2");}
@@ -342,6 +342,11 @@ int main() {
     cm9->description = "Дозволити/Відключити попередження про початок пари";
     commands.push_back(cm9);
 
+    BotCommand::Ptr cm10(new BotCommand);
+    cm10->command = "now";
+    cm10->description = "Покаати пару";
+    commands.push_back(cm10);
+
     bot.getApi().setMyCommands(commands);
     vector<BotCommand::Ptr> vectCmd;
     vectCmd = bot.getApi().getMyCommands();
@@ -381,6 +386,21 @@ int main() {
     });
     //NEXT
     bot.getEvents().onCommand("next", [&db,&bot,&current_day,&current_para,&ch](Message::Ptr message)
+    {
+	vector<string> strs;
+	string next_string = Next(db,current_day,current_para+1,ch,message->chat->id,"");
+	if(next_string.find("@") != std::string::npos) 
+		boost::split(strs,next_string,boost::is_any_of("qqq"));
+	else strs.push_back(next_string);
+		for(auto it = strs.begin();it != strs.end();++it)
+		{
+    			try{bot.getApi().sendMessage(message->chat->id,*it,0,0,make_shared<GenericReply>(),"MarkdownV2");}
+			catch (TgException& e) {
+	                	 printf("error: %s\n", e.what());
+         		}
+		}
+    });
+    bot.getEvents().onCommand("now", [&db,&bot,&current_day,&current_para,&ch](Message::Ptr message)
     {
 	vector<string> strs;
 	string next_string = Next(db,current_day,current_para,ch,message->chat->id,"");
