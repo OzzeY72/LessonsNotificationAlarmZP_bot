@@ -17,9 +17,9 @@ public:
 		setHour(hour);
 		setMin(min);
 	}
-	void setHour(short hour){m_hour = (hour < 24) ? hour : 0;}
-	void setMin(short min){  m_min  = (min  < 60) ? min  : 0;}
-	short getHour(){return m_hour;}
+	void setHour(string hour){m_hour = hour;}
+	void setMin(string min){  m_min  = min;}
+	string getHour(){return m_hour;}
 	short getMin(){return m_min;}
 };
 class Lesson

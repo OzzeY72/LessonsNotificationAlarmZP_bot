@@ -108,8 +108,8 @@ string convertType(int type)
 		case 3: return "Українська мова";
 		case 4: return "Історія України";
 		case 5: return "English";
-		case 6: return "Фізична культура";
-		case 7: return "Фізична культура";
+		case 6: case 7: return "Фізична культура";
+		default: return "N/A";
 	}
 }
 
@@ -163,7 +163,7 @@ string outLesson(sqlite3 *db,Lesson *lesson)
 	switch(lesson->getCh()){case 1:str+="Знаменник \n";break;case 2:str+=" Чисельник\n";break;
 		default: str+="Знаменник і Чисельник\n";break;}	
 	str+= "*День:* " + convertDay(lesson->getDayName()) + "\n";
-	str+= "*Початок:* " +  to_string(lesson->getPara()->getHour()) + ":" + to_string(lesson->getPara()->getMin()) + "\n";
+	str+= "*Початок:* " +  lesson->getPara()->getHour() + ":" + lesson->getPara()->getMin() + "\n";
 	if(lesson->getZoomCode() != 0){str+= "*Zoom код:* " + to_string(lesson->getZoomCode());str+="\n";
 	str+= "*Zoom пароль:* "; str+= *lesson->getZoomPass();str+="\n";}
 	return str;
