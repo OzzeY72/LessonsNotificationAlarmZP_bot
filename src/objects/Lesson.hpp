@@ -17,9 +17,9 @@ public:
 		setHour(hour);
 		setMin(min);
 	}
-	void setHour(string hour){m_hour = hour;}
-	void setMin(string min){  m_min  = min;}
-	string getHour(){return m_hour;}
+	void setHour(int hour){m_hour = hour;}
+	void setMin(int min){  m_min  = min;}
+	int getHour(){return m_hour;}
 	short getMin(){return m_min;}
 };
 class Lesson
