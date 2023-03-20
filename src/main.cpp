@@ -509,8 +509,8 @@ int main() {
             getCurpara(&current_para);
     	    current_day = localtime(&now)->tm_wday;
     	    int tmtmtmint = localtime(&now)->tm_yday;
-	    if(((tmtmtmint+5)/7)%2 == 0) {ch = 1;}
-    	    else {ch = 2;}   
+	    if(((tmtmtmint+5)/7)%2 == 0) {ch = 2;}
+    	    else {ch = 1;}   
 	    tm *ltm = localtime(&now);
 	    int hour = ltm->tm_hour+2;
 	    int min  = ltm->tm_min;
