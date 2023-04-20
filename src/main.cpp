@@ -8,7 +8,7 @@
 #include <string>
 #include <ctime>
 #include <boost/algorithm/string.hpp>
-#include <sqlite/sqlite3.h>
+#include "sqlite/sqlite3.h"
 #include "objects/Lesson.cpp"
 
 using namespace std;
@@ -71,7 +71,7 @@ void getCurpara(int *cp)
 {
 	time_t now = time(0);	
 	tm *ltm = localtime(&now);
-	int hour = ltm->tm_hour+2;
+	int hour = ltm->tm_hour+3;
 	int min  = ltm->tm_min;
 	int st = hour*60+min;
 	if(st < 480) *cp = 0;
@@ -237,6 +237,8 @@ string Next(sqlite3 *db,int current_day,int current_para,int ch,long long id,str
     	Lesson *lesson = new Lesson();
 	lesson->setDayName(current_day);
 	lesson->setParaNumber(current_para);
+	if(lesson->getParaNumber() > 7)
+		return "";
 	string result="";
 	if(!isalarm)
 	{
@@ -271,6 +273,11 @@ void alarmA(vector<long long> ids,Bot *bot,sqlite3 *db,int current_day,int curre
 	{
 		//string str = Next(db,current_day,current_para,ch,*it,"");
 		string str = Next(db,current_day,current_para+1,ch,*it," and day = " + to_string(current_day) + " ",true);
+		if(str == "")
+		{
+			cout << "Para NA" << endl;
+			return;
+		}
 		vector<string> strs;
 		boost::split(strs,str,boost::is_any_of("$"));
 		for(auto ij = strs.begin();ij != strs.end();ij++)
@@ -513,7 +520,7 @@ int main() {
 	    if(((tmtmtmint+5)/7)%2 == 0) {ch = 2;}
     	    else {ch = 1;}   
 	    tm *ltm = localtime(&now);
-	    int hour = ltm->tm_hour+2;
+	    int hour = ltm->tm_hour+3;
 	    int min  = ltm->tm_min;
 	    if(hour == 0 and min == 0) cout << "Day: " << current_day << "\t Para: " << current_para << "\t Chsl: " << ch << endl;
 	    //cout << hour << ":" << min << ":" << ltm->tm_sec << endl;
