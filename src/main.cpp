@@ -305,8 +305,8 @@ int main() {
     getCurpara(&current_para);
     cout << "Para" << current_para;
     int tmtmtmint = localtime(&now)->tm_yday;
-    if(((tmtmtmint+4)/7)%2 == 0) {ch = 2;cout << "\n NAME\n";}
-    else {ch = 1;}   
+    if(((tmtmtmint+6)/7)%2 == 0) {ch = 1;cout << "\n NAME\n";}
+    else {ch = 2;}   
     vector<BotCommand::Ptr> commands;
     BotCommand::Ptr cm1(new BotCommand);
     cm1->command = "start";
@@ -517,8 +517,8 @@ int main() {
             getCurpara(&current_para);
     	    current_day = localtime(&now)->tm_wday;
     	    int tmtmtmint = localtime(&now)->tm_yday;
-	    if(((tmtmtmint+4)/7)%2 == 0) {ch = 2;}
-    	    else {ch = 1;}   
+	    if(((tmtmtmint+6)/7)%2 == 0) {ch = 1;}
+    	    else {ch = 2;}   
 	    tm *ltm = localtime(&now);
 	    int hour = ltm->tm_hour+3;
 	    int min  = ltm->tm_min;
